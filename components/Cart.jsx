@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import CartItem from './CartItem';
 import CartSummary from './CartSummary';
 
-const Cart = ({items, removeFromCart, toggleCart, toggleOrderForm, showOrderForm, handleOrderSubmit}) => {
+const Cart = ({items, removeFromCart, toggleCart, toggleOrderForm, showOrderForm, handleOrderSubmit, decreaseQuantity, increaseQuantity}) => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -36,7 +36,13 @@ const Cart = ({items, removeFromCart, toggleCart, toggleOrderForm, showOrderForm
                     <p>The shopping cart is empty!</p>
                 ) : (
                     items.map((item) => (
-                        <CartItem key={item.id} item={item} removeFromCart={removeFromCart} />
+                        <CartItem
+                            key={item.id}
+                            item={item}
+                            removeFromCart={removeFromCart}
+                            decreaseQuantity={decreaseQuantity}
+                            increaseQuantity={increaseQuantity}
+                        />
                     ))
                 )}
             </div>

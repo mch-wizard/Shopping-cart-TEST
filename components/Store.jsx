@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Cart from './Cart';
 import Product from './Product';
 import CartSummary from './CartSummary';
-import products from '@/utils/productsData';
+import products from '@/data/productsData';
 import Image from 'next/image';
 
-import { v4 as uuidv4 } from 'uuid';
+// import { sendEmail } from '@/utils/mailer';
 
 const Store = () => {
     const [cartOpen, setCartOpen] = useState(false);
@@ -26,12 +26,22 @@ const Store = () => {
     }, [cartItems]);
 
     const addToCart = (product) => {
-        const newItem = {
+        const existingItemIndex = cartItems.findIndex((item) => item.id === product.id);
+      
+        if (existingItemIndex !== -1) {
+          const updatedCartItems = [...cartItems];
+          updatedCartItems[existingItemIndex].quantity += 1;
+          setCartItems(updatedCartItems);
+        } else {
+          const newItem = {
             ...product,
-            id: uuidv4(), // generating a unique identifier
+            quantity: 1,
+          };
+          setCartItems([...cartItems, newItem]);
         }
-        setCartItems([...cartItems, newItem]);
-    };
+      };
+      
+      
 
     const removeFromCart = (product) => {
         const itemIndex = cartItems.findIndex((item) => item.id === product.id);
@@ -43,6 +53,24 @@ const Store = () => {
         }
     };
 
+    const decreaseQuantity = (item) => {
+        if (item.quantity === 1) {
+            removeFromCart(item);
+        } else {
+            const updatedCartItems = cartItems.map((cartItem) =>
+                cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity - 1 } : cartItem
+            );
+            setCartItems(updatedCartItems);
+        }
+    };
+
+    const increaseQuantity = (item) => {
+        const updatedCartItems = cartItems.map((cartItem) =>
+            cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
+        );
+        setCartItems(updatedCartItems);
+    };
+
     const toggleCart = () => {
         setCartOpen(!cartOpen);
     };
@@ -52,21 +80,28 @@ const Store = () => {
     };
 
     const handleOrderSubmit = (formData) => {
-        const emailBody = `
-            Order:
-            ${items.map((item) => `${item.name} - ${item.price}`).join('\n')}
-
-            Customer details:
-            First name and last name: ${formData.name}
-            Email: ${formData.email}
-            Address: ${formData.address}
+        const emailContent = `
+            <h2>Customer details:</h2>
+            <p>First name and last name: ${formData.name}</p>
+            <p>Email: ${formData.email}</p>
+            <h3>Order:</h3>
+            <ul>
+                ${cartItems.map((item) => `<li>${item.name} - ${item.quantity} pcs.</li>`).join('')}
+            </ul>
         `;
 
         // Implement the email sending logic
-
-
-        setCartItems([]);
-        setShowOrderForm(false);
+        sendEmail('your-email@example.com', 'New order', emailContent).then((success) => {
+            if (success) {
+                console.log('Order sent!');
+                
+              // Clear your cart after sending your order
+                setCartItems([]);
+                setShowOrderForm(false);
+            } else {
+                console.log('There was a problem sending your order.');
+            }
+        });
     };
 
     return (
@@ -74,7 +109,7 @@ const Store = () => {
             <h1 className='mb-10 text-center'>Welcome to the store!</h1>
             <div className='flex flex-row justify-center items-center'>
                 {products.map((product) => (
-                    <Product key={product.id} product={product} addItem={addToCart} />
+                    <Product key={product.id} product={product} addToCart={addToCart} />
                 ))}
             </div>
 
@@ -96,6 +131,8 @@ const Store = () => {
                     toggleOrderForm={toggleOrderForm}
                     showOrderForm={showOrderForm}
                     handleOrderSubmit={handleOrderSubmit}
+                    decreaseQuantity={decreaseQuantity}
+                    increaseQuantity={increaseQuantity}
                 />
             )}
 
