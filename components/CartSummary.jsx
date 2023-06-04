@@ -1,13 +1,15 @@
-import React from 'react'
+import React from 'react';
 
-const CartSummary = ({ items, total }) => {
+const CartSummary = ({ items }) => {
+    const getTotalPrice = () => {
+        return items.reduce((total, item) => total + item.price, 0);
+    };
+
     return (
-        <div>
-            <h2>Order summary</h2>
-            {items.map((product, index) => (
-                <p key={index}>{product.name}: {product.price}</p>
-            ))}
-            <p>Total amount: {total} $</p>
+        <div className='flex flex-col justify-center items-center'>
+            <h3>Order summary</h3>
+            <p>Number of products: {items.length}</p>
+            <p>Total amount: {getTotalPrice()} $</p>
         </div>
     );
 };

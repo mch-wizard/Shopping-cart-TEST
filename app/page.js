@@ -1,9 +1,9 @@
-import Cart from "@/components/Cart";
+import Store from "@/components/Store";
 
 const Home = () => {
   return (
     <div>
-      <Cart />
+      <Store />
     </div>
   )
 }

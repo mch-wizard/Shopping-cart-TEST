@@ -1,44 +1,92 @@
 'use client';
 
 import React, { useState } from 'react';
-import Item from './Item';
 import CartItem from './CartItem';
 import CartSummary from './CartSummary';
 
-const Cart = () => {
-    const [items, setItems] = useState([]);
-    const [total, setTotal] = useState(0);
+const Cart = ({items, removeFromCart, toggleCart, toggleOrderForm, showOrderForm, handleOrderSubmit}) => {
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        address: '',
+    });
 
-    const addItem = (product) => {
-        setItems([...items, product]);
-        setTotal(total + product.price);
+    const handleInputChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const removeItem = (product) => {
-        const updatedItems = items.filter((i) => i !== product);
-        
-        setItems(updatedItems);
-        setTotal(total - product.price);
-    };
+    const handleSubmit = (e) => {
+        e.preventDefault();
 
-    const sendOrder = () => {
-        // add logic for sending an order via email, np. nodemailer
-        // Configure the shipping data and call the appropriate functions
-        console.log('The order has been sent!');
+        handleOrderSubmit(formData);
     };
 
 
     return (
         <div className='flex flex-col justify-center items-center p-5'>
-            <h1>Shopping cart</h1>
-            <Item addItem={addItem} />
-            <div className='flex justify-center items-center m-10'>
-                {items.map((product, index) => (
-                    <CartItem key={index} product={product} removeItem={removeItem} />
-                ))}
+            <div className='flex flex-col justify-center items-center'>
+                <h2>Shopping cart</h2>
+                <button className='m-2 p-2 border rounded-xl' onClick={toggleCart}>
+                    Close
+                </button>
             </div>
-            <CartSummary items={items} total={total} />
-            <button className='m-2 p-2 border rounded-xl' onClick={sendOrder}>Send</button>
+
+            <div className='flex flex-col justify-center items-center mt-5 mb-5'>
+                {items.length === 0 ? (
+                    <p>The shopping cart is empty!</p>
+                ) : (
+                    items.map((item) => (
+                        <CartItem key={item.id} item={item} removeFromCart={removeFromCart} />
+                    ))
+                )}
+            </div>
+
+            <CartSummary items={items} />
+
+            {!showOrderForm ? (
+                <button className='m-2 p-2 border rounded-xl' onClick={toggleOrderForm}>
+                    Send
+                </button>
+            ) : (
+                <form className='flex flex-col justify-center items-center mt-5' onSubmit={handleSubmit}>
+                    <h3>The order form</h3>
+
+                    <input
+                        type='text'
+                        name='name'
+                        placeholder='first name and last name'
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        className='m-2'
+                        required
+                    />
+
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        className='m-2'
+                        required
+                    />
+
+                    <textarea
+                        name="address"
+                        placeholder="Adres dostawy"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        rows='5'
+                        cols='33'
+                        className='m-2 text-black'
+                        required
+                    ></textarea>
+
+                    <button className='m-2 p-2 border rounded-xl' type='submit'>Send</button>
+
+                </form>
+            )}
+            
         </div>
     );
 };
