@@ -31,7 +31,7 @@ const Cart = ({items, removeFromCart, toggleCart, toggleOrderForm, showOrderForm
                 </button>
             </div>
 
-            <div className='flex flex-col justify-center items-center mt-5 mb-5'>
+            <div className='flex flex-row justify-center items-center mt-5 mb-5'>
                 {items.length === 0 ? (
                     <p>The shopping cart is empty!</p>
                 ) : (

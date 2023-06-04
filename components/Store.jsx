@@ -7,18 +7,29 @@ import CartSummary from './CartSummary';
 import products from '@/utils/productsData';
 import Image from 'next/image';
 
+import { v4 as uuidv4 } from 'uuid';
+
 const Store = () => {
     const [cartOpen, setCartOpen] = useState(false);
     const [cartItems, setCartItems] = useState([]);
     const [showOrderForm, setShowOrderForm] = useState(false);
 
     const addToCart = (product) => {
-        setCartItems([...cartItems, product]);
+        const newItem = {
+            ...product,
+            id: uuidv4(), // generating a unique identifier
+        }
+        setCartItems([...cartItems, newItem]);
     };
 
     const removeFromCart = (product) => {
-        const updatedCartItems = cartItems.filter((item) => item.id !== product.id);
-        setCartItems(updatedCartItems);
+        const itemIndex = cartItems.findIndex((item) => item.id === product.id);
+
+        if (itemIndex !== -1) {
+            const updatedCartItems = [...cartItems];
+            updatedCartItems.splice(itemIndex, 1);
+            setCartItems(updatedCartItems);
+        }
     };
 
     const toggleCart = () => {
